@@ -66,6 +66,8 @@ def build_arg_parser():
                    help="Number of hidden layers (MLP only)")
     p.add_argument("--record",  type=str,   default="0,5,-1",
                    help="Comma-separated iteration indices to record video")
+    p.add_argument("--record_every", type=int, default=None,
+                   help="Record every N iterations (e.g. 10). Merged with --record entries.")
     p.add_argument("--checkpoint_every", type=int, default=20)
     p.add_argument("--run_dir", type=str,   default=None,
                    help="Override auto-generated run directory")
@@ -121,6 +123,44 @@ def main():
             setattr(algo_cfg, attr, args.lr)
 
     # ── Master config ─────────────────────────────────────────────────
+    # Determine record sessions: merge explicit `--record` entries with
+    # the optional `--record_every` pattern. We need the expected number of
+    # iterations (num_iters) which depends on the algorithm config.
+    fpb = getattr(algo_cfg, "frames_per_batch", None)
+    if fpb is None:
+        raise ValueError("Algorithm configuration does not define frames_per_batch")
+    num_iters = max(1, algo_cfg.total_frames // fpb)
+
+    # Parse explicit record entries (e.g. "0,5,-1"). If the user did not
+    # explicitly pass `--record` (i.e. they're relying on the default) and
+    # also passed `--record_every`, prefer the periodic schedule and ignore
+    # the default explicit list to avoid surprising behaviour.
+    user_provided_record = any(a.startswith("--record") for a in sys.argv)
+    explicit = []
+    try:
+        explicit = [int(x) for x in args.record.split(",") if x != ""]
+    except Exception:
+        explicit = []
+    include_last = -1 in explicit
+
+    if (not user_provided_record) and (args.record == "0,5,-1") and (args.record_every is not None):
+        # Ignore the default explicit entries when user requested a periodic schedule
+        explicit_nonneg = []
+        include_last = False
+    else:
+        # discard explicit indices that are outside the expected iteration range
+        explicit_nonneg = [x for x in explicit if x >= 0 and x < num_iters]
+
+    # Generate periodic entries if requested
+    periodic = []
+    if args.record_every is not None and args.record_every > 0:
+        periodic = list(range(0, num_iters, args.record_every))
+
+    # Merge and keep order deterministic
+    record_set = sorted(set(explicit_nonneg + periodic))
+    if include_last:
+        record_set.append(-1)
+
     cfg = Config(
         env=EnvConfig(
             env_name=args.env,
@@ -129,7 +169,7 @@ def main():
         ),
         log=LogConfig(
             run_dir=args.run_dir,
-            record_sessions=[int(x) for x in args.record.split(",")],
+            record_sessions=record_set,
             checkpoint_every=args.checkpoint_every,
         ),
     )
