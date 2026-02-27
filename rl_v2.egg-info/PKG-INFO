@@ -12,6 +12,8 @@ Requires-Dist: tensorboard>=2.13
 Provides-Extra: classic
 Requires-Dist: gymnasium[classic-control]; extra == "classic"
 Requires-Dist: pygame; extra == "classic"
+Provides-Extra: box2d
+Requires-Dist: gymnasium[box2d]; extra == "box2d"
 Provides-Extra: atari
 Requires-Dist: gymnasium[atari]; extra == "atari"
 Requires-Dist: ale-py; extra == "atari"
@@ -22,5 +24,5 @@ Requires-Dist: moviepy; extra == "video"
 Requires-Dist: imageio-ffmpeg; extra == "video"
 Requires-Dist: other; extra == "video"
 Provides-Extra: all
-Requires-Dist: rl_v2[classic,video]; extra == "all"
+Requires-Dist: rl_v2[box2d,classic,video]; extra == "all"
 Dynamic: requires-python

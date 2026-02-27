@@ -1,6 +1,0 @@
-{
-  "algorithm": "ppo",
-  "run_dir": "/home/noman-ali/projects/navrox/rl_v2/runs/CartPole-v1_gymnasium_ppo_20260226_224834",
-  "elapsed_sec": 3.0,
-  "tensorboard_cmd": "tensorboard --logdir /home/noman-ali/projects/navrox/rl_v2/runs/CartPole-v1_gymnasium_ppo_20260226_224834/tensorboard"
-}

@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 setup.py
 rl_v2/__init__.py

@@ -15,6 +15,10 @@ python -m venv .venv            # create virtualenv if you haven't already
 source .venv/bin/activate
 pip install -e .                # install this package in editable mode
 pip install torchrl tensordict gymnasium[classic-control] tensorboard moviepy pygame
+# if you want Box2D environments you also need system SWIG and the
+# corresponding gymnasium extra:
+#   sudo apt-get install swig   # or brew install swig, etc.
+#   pip install "gymnasium[box2d]"
 ```
 
 Train a model using the provided CLI utility:
@@ -29,6 +33,10 @@ python train.py --algo sac --net mlp --env Pendulum-v1
 # CNN policy on Atari (requires `pip install ale-py`)
 pip install ale-py
 python train.py --algo ppo --net cnn --env ALE/Pong-v5
+
+# Box2D examples (CartPole or LunarLander) require gymnasium[box2d]
+# and a SWIG installation (see quick start above). Once installed you
+# can train with --env LunarLander-v2, etc.
 ```
 
 Additional options such as backend (`--backend gymnasium|isaac|omniverse`), device,

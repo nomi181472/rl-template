@@ -16,6 +16,11 @@ setup(
     ],
     extras_require={
         "classic": ["gymnasium[classic-control]", "pygame"],
+        # Box2D environments require the extra gymnasium[box2d] and a
+        # system SWIG installation.  Users can install via:
+        #     sudo apt-get install swig   # or equivalent for your OS
+        # and then use pip extras as shown below.
+        "box2d":  ["gymnasium[box2d]"],
         "atari":   ["gymnasium[atari]", "ale-py"],
         "mujoco":  ["gymnasium[mujoco]"],
         "video":   ["moviepy"],

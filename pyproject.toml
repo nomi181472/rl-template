@@ -21,10 +21,12 @@ dependencies = [
 
 [project.optional-dependencies]
 classic = ["gymnasium[classic-control]", "pygame"]
+# Box2D requires the gymnasium extra and SWIG installed on the system
+box2d  = ["gymnasium[box2d]"]
 atari   = ["gymnasium[atari]", "ale-py"]
 mujoco  = ["gymnasium[mujoco]"]
 video   = ["moviepy", "imageio-ffmpeg","other"]
-all     = ["rl_v2[classic,video]"]
+all     = ["rl_v2[classic,video,box2d]"]
 
 
 [tool.setuptools.packages.find]

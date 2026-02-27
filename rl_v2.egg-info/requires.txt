@@ -6,11 +6,14 @@ gymnasium>=0.29
 tensorboard>=2.13
 
 [all]
-rl_v2[classic,video]
+rl_v2[box2d,classic,video]
 
 [atari]
 gymnasium[atari]
 ale-py
+
+[box2d]
+gymnasium[box2d]
 
 [classic]
 gymnasium[classic-control]
