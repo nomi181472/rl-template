@@ -52,9 +52,9 @@ python train.py --algo ppo --net cnn --env ALE/Pong-v5
 ```
 
 Additional options such as backend (`--backend gymnasium|isaac|omniverse`), device
-(defaults to `cuda` if available), learning rate, run directory, checkpoint
-frequency, and video recording can be passed via the command line. See
-`python train.py --help` for a full list.
+(defaults to `cuda` if available), number of iterations (`--iters`), learning
+rate, run directory, checkpoint frequency, and video recording can be passed via
+the command line. See `python train.py --help` for a full list.
 
 ## Training Sequence Diagram
 

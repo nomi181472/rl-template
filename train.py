@@ -54,7 +54,11 @@ def build_arg_parser():
                    help="Environment backend")
     p.add_argument("--device",  type=str, default=None,
                    help="Torch device: cpu | cuda:0 | mps. If omitted the code will auto‑select cuda if available.")
-    p.add_argument("--total_frames", type=int, default=100_000)
+    p.add_argument("--total_frames", type=int, default=100_000,
+                   help="Total number of environment frames to collect (ignored when --iters is set)")
+    p.add_argument("--iters", "--num-iters", type=int, default=None,
+                   help="Number of optimisation iterations to run; each iteration consists of\n" \
+                        "frames_per_batch frames. Casting the value into total_frames automatically.")
     p.add_argument("--lr",      type=float, default=3e-4)
     p.add_argument("--hidden",  type=int,   default=256,
                    help="Hidden layer size (MLP only)")
@@ -102,7 +106,16 @@ def main():
         sys.exit(1)
 
     algo_cfg = AlgoCfgCls()
-    algo_cfg.total_frames = args.total_frames
+    # if the user requested a number of iterations, convert it to frames
+    if args.iters is not None:
+        # frames_per_batch may have been changed later, but default should exist
+        fpb = getattr(algo_cfg, "frames_per_batch", None)
+        if fpb is None:
+            raise ValueError("Algorithm configuration does not define frames_per_batch")
+        algo_cfg.total_frames = args.iters * fpb
+    else:
+        algo_cfg.total_frames = args.total_frames
+
     for attr in ("lr", "lr_actor", "lr_critic"):
         if hasattr(algo_cfg, attr):
             setattr(algo_cfg, attr, args.lr)
@@ -126,6 +139,11 @@ def main():
     print(f"Network   : {args.net.upper()}  hidden={[args.hidden]*args.layers}")
     print(f"Env       : {args.env}  ({args.backend})")
     print(f"Device    : {args.device}")
+    if args.iters is not None:
+        fpb = getattr(algo_cfg, "frames_per_batch", "?")
+        print(f"Iterations: {args.iters}  (frames_per_batch={fpb})")
+    else:
+        print(f"Total frames : {algo_cfg.total_frames}")
 
     adapter = make_env_adapter(cfg.env)
     obs_space, act_space = adapter.setup()
