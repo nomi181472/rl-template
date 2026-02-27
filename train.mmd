@@ -1,6 +1,7 @@
 sequenceDiagram
     %% participants
     participant User/CLI
+    participant User/Dev        as "User/Developer"
     participant train.py
     participant Config
     participant EnvAdapter
@@ -10,11 +11,18 @@ sequenceDiagram
     participant Trainer
     participant Collector
     participant Env
+    participant ExtPkg         as "External pkg"
+
+    %% custom env registration (optional)
+    User/Dev->>EnvAdapter: register_adapter("my_sim", "my_pkg.adapter:MyAdapter")
+    ExtPkg->>EnvAdapter: register_adapter(...)  %% if an external package does it
 
     %% startup
     User/CLI->>train.py: run main()
     train.py->>Config: build env/log configs
     train.py->>EnvAdapter: make_env_adapter(cfg.env)
+    EnvAdapter->>EnvAdapter: lookup registry (built‑in or custom)
+    EnvAdapter-->>EnvAdapter: instantiate adapter
     EnvAdapter->>EnvAdapter: setup() → obs_space, act_space
     train.py->>Algorithm: make_algorithm(algo_cfg,…)
     Algorithm->>Network: construct actor/critic nets

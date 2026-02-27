@@ -147,7 +147,7 @@ class GymnasiumAdapter(BaseEnvAdapter):
             # Restore the original env that was active before recording.
             self._env = self._pre_record_env
             self._pre_record_env = None
-        else:start_recording
+        else:
             # If we wrapped the original env in-place, unwrap back to it
             self._env = self._unwrap_recorder()
         self._recording = False
