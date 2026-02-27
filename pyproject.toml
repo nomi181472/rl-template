@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+# Use the standard setuptools build backend module. The previous
+# 'setuptools.backends.legacy' import can be unavailable in newer
+# setuptools releases; 'setuptools.build_meta' is the supported backend.
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rl_v2"
+version = "0.1.0"
+description = "Algorithm, network, and env-backend agnostic RL framework"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0",
+    "torchrl>=0.3",
+    "tensordict>=0.3",
+    "numpy>=1.24",
+    "gymnasium>=0.29",
+    "tensorboard>=2.13",
+]
+
+[project.optional-dependencies]
+classic = ["gymnasium[classic-control]", "pygame"]
+atari   = ["gymnasium[atari]", "ale-py"]
+mujoco  = ["gymnasium[mujoco]"]
+video   = ["moviepy", "imageio-ffmpeg","other"]
+all     = ["rl_v2[classic,video]"]
+
+
+[tool.setuptools.packages.find]
+# finds rl_v2/ and all sub-packages automatically
+where = ["."]

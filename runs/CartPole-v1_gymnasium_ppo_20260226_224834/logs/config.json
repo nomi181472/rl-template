@@ -1,0 +1,21 @@
+{
+  "env.env_name": "CartPole-v1",
+  "env.env_backend": "gymnasium",
+  "env.render_mode": null,
+  "env.seed": 42,
+  "env.device": "cpu",
+  "env.num_envs": 1,
+  "env.headless": true,
+  "log.run_dir": null,
+  "log.log_tensorboard": true,
+  "log.log_csv": true,
+  "log.log_json": true,
+  "log.checkpoint_every": 20,
+  "log.record_sessions": [
+    0,
+    5,
+    -1
+  ],
+  "log.histogram_every": 10,
+  "algorithm": "ppo"
+}

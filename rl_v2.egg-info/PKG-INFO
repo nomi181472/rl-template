@@ -1,0 +1,26 @@
+Metadata-Version: 2.4
+Name: rl_v2
+Version: 0.1.0
+Summary: Algorithm, network, and env-backend agnostic RL framework
+Requires-Python: >=3.9
+Requires-Dist: torch>=2.0
+Requires-Dist: torchrl>=0.3
+Requires-Dist: tensordict>=0.3
+Requires-Dist: numpy>=1.24
+Requires-Dist: gymnasium>=0.29
+Requires-Dist: tensorboard>=2.13
+Provides-Extra: classic
+Requires-Dist: gymnasium[classic-control]; extra == "classic"
+Requires-Dist: pygame; extra == "classic"
+Provides-Extra: atari
+Requires-Dist: gymnasium[atari]; extra == "atari"
+Requires-Dist: ale-py; extra == "atari"
+Provides-Extra: mujoco
+Requires-Dist: gymnasium[mujoco]; extra == "mujoco"
+Provides-Extra: video
+Requires-Dist: moviepy; extra == "video"
+Requires-Dist: imageio-ffmpeg; extra == "video"
+Requires-Dist: other; extra == "video"
+Provides-Extra: all
+Requires-Dist: rl_v2[classic,video]; extra == "all"
+Dynamic: requires-python

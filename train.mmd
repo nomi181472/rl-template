@@ -1,0 +1,68 @@
+sequenceDiagram
+    %% participants
+    participant User/CLI
+    participant train.py
+    participant Config
+    participant EnvAdapter
+    participant Algorithm
+    participant Network
+    participant RunLogger
+    participant Trainer
+    participant Collector
+    participant Env
+
+    %% startup
+    User/CLI->>train.py: run main()
+    train.py->>Config: build env/log configs
+    train.py->>EnvAdapter: make_env_adapter(cfg.env)
+    EnvAdapter->>EnvAdapter: setup() → obs_space, act_space
+    train.py->>Algorithm: make_algorithm(algo_cfg,…)
+    Algorithm->>Network: construct actor/critic nets
+    train.py->>Algorithm: setup(device)
+    train.py->>RunLogger: setup()
+    train.py->>Trainer: __init__, setup()
+    Trainer->>Algorithm: if on‑policy build_collector()
+
+    %% training loop entry
+    User/CLI->>Trainer: trainer.train()
+
+    alt on‑policy
+        loop over Collector
+            Collector->>EnvAdapter: step env(s), preprocess obs
+            EnvAdapter->>Algorithm: observations
+            Algorithm->>Network: forward pass
+            Generator->>Collector: store transitions
+            Trainer->>Algorithm: update(batch)
+            Algorithm->>Network: compute loss, backprop
+            Trainer->>RunLogger: log(metrics)
+            Trainer->>Collector: update_policy_weights_()
+            opt when recording
+                Trainer->>EnvAdapter: record episode
+            end
+            opt checkpoint/histogram
+                Trainer->>RunLogger: log_histogram/save_checkpoint
+            end
+        end
+    else off‑policy
+        loop frames_per_batch
+            Trainer->>EnvAdapter: get_observation(obs)
+            EnvAdapter->>Algorithm: obs tensor
+            Algorithm->>Network: select_action
+            Algorithm->>EnvAdapter: raw_out→action
+            EnvAdapter->>Env: step(action)
+            Env->>EnvAdapter: new_obs, reward, done
+            EnvAdapter->>Algorithm: push to buffer
+            Algorithm->>Algorithm: _increment_steps/on_episode_end
+        end
+        Trainer->>Algorithm: update()
+        Trainer->>RunLogger: log(metrics)
+        opt record/checkpoint/histogram
+            Trainer->>EnvAdapter or RunLogger: record & save
+        end
+    end
+
+    %% teardown
+    Trainer->>RunLogger: save_checkpoint(final)
+    Trainer->>EnvAdapter: close()
+    Trainer->>RunLogger: close()
+    User/CLI-->>Trainer: training finished
