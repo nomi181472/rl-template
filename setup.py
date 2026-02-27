@@ -16,6 +16,10 @@ setup(
     ],
     extras_require={
         "classic": ["gymnasium[classic-control]", "pygame"],
+        # GPU users should install CUDA‑enabled PyTorch manually via the
+        # official PyTorch index; this extra merely declares the dependency
+        # so `pip install rl_v2[gpu]` behaves sensibly.
+        "gpu":     ["torch>=2.0"],
         # Box2D environments require the extra gymnasium[box2d] and a
         # system SWIG installation.  Users can install via:
         #     sudo apt-get install swig   # or equivalent for your OS

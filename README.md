@@ -13,6 +13,18 @@ Install requirements and dependencies (PyTorch, TorchRL, Gymnasium, etc.)
 ```bash
 python -m venv .venv            # create virtualenv if you haven't already
 source .venv/bin/activate
+
+# install the core package; the `gpu` extra is a convenience name only –
+# you still need to pull a CUDA‑enabled wheel from the official PyTorch
+# index (replace `cu121` / `cpu` etc. according to your CUDA version):
+#
+#   pip install "torch>=2.0+cu121" -f https://download.pytorch.org/whl/torch_stable.html
+#   pip install rl_v2[gpu]
+#
+# or, if you prefer the latest CPU‑only build:
+#   pip install torch
+#   pip install -e .
+
 pip install -e .                # install this package in editable mode
 pip install torchrl tensordict gymnasium[classic-control] tensorboard moviepy pygame
 # if you want Box2D environments you also need system SWIG and the
@@ -39,9 +51,10 @@ python train.py --algo ppo --net cnn --env ALE/Pong-v5
 # can train with --env LunarLander-v2, etc.
 ```
 
-Additional options such as backend (`--backend gymnasium|isaac|omniverse`), device,
-learning rate, run directory, checkpoint frequency, and video recording can be
-passed via the command line. See `python train.py --help` for a full list.
+Additional options such as backend (`--backend gymnasium|isaac|omniverse`), device
+(defaults to `cuda` if available), learning rate, run directory, checkpoint
+frequency, and video recording can be passed via the command line. See
+`python train.py --help` for a full list.
 
 ## Training Sequence Diagram
 

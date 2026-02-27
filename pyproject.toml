@@ -21,6 +21,11 @@ dependencies = [
 
 [project.optional-dependencies]
 classic = ["gymnasium[classic-control]", "pygame"]
+# GPU users should install a CUDA‑enabled PyTorch wheel separately;
+# the extra below simply documents that requirement and makes the
+# `pip install rl_v2[gpu]` command clearer.  Wheels are selected via
+# the official PyTorch index (https://download.pytorch.org/whl/).
+gpu     = ["torch>=2.0"]
 # Box2D requires the gymnasium extra and SWIG installed on the system
 box2d  = ["gymnasium[box2d]"]
 atari   = ["gymnasium[atari]", "ale-py"]

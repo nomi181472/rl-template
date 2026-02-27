@@ -52,8 +52,8 @@ def build_arg_parser():
     p.add_argument("--backend", type=str, default="gymnasium",
                    choices=["gymnasium", "isaac", "omniverse"],
                    help="Environment backend")
-    p.add_argument("--device",  type=str, default="cpu",
-                   help="Torch device: cpu | cuda:0 | mps")
+    p.add_argument("--device",  type=str, default=None,
+                   help="Torch device: cpu | cuda:0 | mps. If omitted the code will auto‑select cuda if available.")
     p.add_argument("--total_frames", type=int, default=100_000)
     p.add_argument("--lr",      type=float, default=3e-4)
     p.add_argument("--hidden",  type=int,   default=256,
@@ -72,6 +72,14 @@ def build_arg_parser():
 
 def main():
     args = build_arg_parser().parse_args()
+
+    # auto‑detect device if user didn't specify one
+    if args.device is None:
+        try:
+            import torch
+            args.device = "cuda" if torch.cuda.is_available() else "cpu"
+        except ImportError:
+            args.device = "cpu"
 
     if args.list_algos:
         print(f"Available algorithms: {list_algorithms()}")

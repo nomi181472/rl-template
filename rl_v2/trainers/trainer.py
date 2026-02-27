@@ -73,10 +73,12 @@ class Trainer:
             t0      = time.time()
             metrics = self.algorithm.update(batch)
 
+            # rewards tensor may live on GPU; move to CPU before numpy conversion
             rewards     = batch.get(("next", "reward")).flatten()
             global_step += fpb
             fps          = fpb / max(time.time() - t0, 1e-6)
-            self._log_and_print(i, last_iter, global_step, rewards.numpy(), metrics, fps)
+            self._log_and_print(i, last_iter, global_step,
+                                rewards.cpu().numpy(), metrics, fps)
 
             if i in record_set:
                 self._record_episode(i, global_step)

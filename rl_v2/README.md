@@ -149,7 +149,8 @@ class DreamerAlgorithm(BaseAlgorithm):
 
     def select_action(self, obs_tensor, eval_mode=False):
         # obs_tensor already preprocessed by adapter.get_observation()
-        return self._actor(obs_tensor).numpy(), None
+        # ensure we move output to CPU if it lives on CUDA
+        return self._actor(obs_tensor).cpu().numpy(), None
 
     def collect_data(self, adapter, n_steps):
         obs = adapter.reset()
