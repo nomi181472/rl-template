@@ -58,10 +58,12 @@ class GymnasiumAdapter(BaseEnvAdapter):
         return obs_space, act_space
 
     def reset(self) -> np.ndarray:
+        assert self._env is not None, "Call setup() before reset()."
         obs, _ = self._env.reset(seed=getattr(self.cfg, "seed", None))
         return obs.astype(np.float32)
 
     def step(self, action: Any) -> Tuple[np.ndarray, float, bool, Dict]:
+        assert self._env is not None, "Call setup() before step()."
         obs, reward, terminated, truncated, info = self._env.step(action)
         return obs.astype(np.float32), float(reward), terminated or truncated, info
 
@@ -88,6 +90,7 @@ class GymnasiumAdapter(BaseEnvAdapter):
           - Running mean-std normalisation
           - Feature extraction (e.g. encode image first)
         """
+        assert self._obs_space is not None, "Call setup() before get_observation()."
         return self._obs_space.preprocess(raw_obs, device=device, normalise=normalise)
 
     # ──────────────────────────────────────────────────────────────────
@@ -103,6 +106,7 @@ class GymnasiumAdapter(BaseEnvAdapter):
           - Multi-head action decoding
           - Action smoothing / filtering
         """
+        assert self._act_space is not None, "Call setup() before get_action()."
         return self._act_space.postprocess(raw_network_output, clip=clip)
 
     # ──────────────────────────────────────────────────────────────────
@@ -140,6 +144,7 @@ class GymnasiumAdapter(BaseEnvAdapter):
         # replaced it when starting recording.
         try:
             # if RecordVideo created recorded_frames etc, close it cleanly
+            assert self._env is not None, "Expected env to exist while recording. Anomaly detected."
             self._env.close()
         except Exception:
             pass
@@ -152,10 +157,19 @@ class GymnasiumAdapter(BaseEnvAdapter):
             self._env = self._unwrap_recorder()
         self._recording = False
         return path
-
     def render(self) -> Optional[np.ndarray]:
-        if self._env and hasattr(self._env, "render"):
-            return self._env.render()
+        if self._env is not None and hasattr(self._env, "render"):
+            frame = self._env.render()
+
+            if frame is None:
+                return None
+
+            # Handle list returned by Gymnasium
+            if isinstance(frame, list):
+                return np.asarray(frame[-1])  # last frame
+
+            return np.asarray(frame)
+
         return None
 
     def seed(self, seed: int):
@@ -168,7 +182,11 @@ class GymnasiumAdapter(BaseEnvAdapter):
     def make_torchrl_env(self):
         from torchrl.envs import GymEnv, TransformedEnv, Compose, StepCounter, RewardSum
         env = GymEnv(self.cfg.env_name, device=getattr(self.cfg, "device", "cpu"))
-        return TransformedEnv(env, Compose(StepCounter(), RewardSum()))
+        
+        return TransformedEnv(
+            env,
+            Compose([StepCounter(), RewardSum()])
+        )
 
     # ──────────────────────────────────────────────────────────────────
     # Space builders
@@ -245,4 +263,5 @@ class GymnasiumAdapter(BaseEnvAdapter):
         env = self._env
         while isinstance(env, RecordVideo):
             env = env.env
+        assert env is not None, "Expected to find a base env while unwrapping recorder. Anomaly detected."
         return env

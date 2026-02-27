@@ -116,6 +116,7 @@ class BaseEnvAdapter(ABC):
         -------
         torch.Tensor of shape (1, obs_space.network_input_dim)
         """
+        assert self._obs_space is not None, "Call setup() before get_observation()."
         return self._obs_space.preprocess(raw_obs, device=device, normalise=normalise)
 
     # ──────────────────────────────────────────────────────────────────
@@ -143,6 +144,7 @@ class BaseEnvAdapter(ABC):
         -------
         Action in the format the env's step() expects.
         """
+        assert self._act_space is not None, "Call setup() before get_action()."
         return self._act_space.postprocess(raw_network_output, clip=clip)
 
     # ──────────────────────────────────────────────────────────────────
@@ -204,6 +206,7 @@ class BaseEnvAdapter(ABC):
 
     def random_action(self) -> Any:
         """Sample a random action (useful for warmup)."""
+        assert self._act_space is not None, "Call setup() before random_action()."
         return self._act_space.sample()
 
     def __repr__(self) -> str:

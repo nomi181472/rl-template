@@ -73,7 +73,7 @@ class ObservationSpace:
     """
 
     shape:       Tuple[int, ...]
-    dtype:       np.dtype            = field(default_factory=lambda: np.float32)
+    dtype: np.dtype = field(default_factory=lambda: np.dtype("float32"))
     space_type:  SpaceType           = SpaceType.FLAT
     flat_dim:    int                 = 0          # filled in __post_init__
     low:         Optional[np.ndarray]= None
@@ -204,40 +204,31 @@ class ActionSpace:
         raw_output: Union[np.ndarray, int, "torch.Tensor"],
         clip: bool = True,
     ) -> Any:
-        """
-        Convert raw network output → valid env action.
+        import torch
 
-        Default behaviour:
-          DISCRETE:   return int (argmax or sampled index)
-          CONTINUOUS: clip to [low, high] if clip=True
-          HYBRID:     split + postprocess each component
-
-        Override in subclasses or adapters for custom transforms
-        (e.g. rescale from [-1,1] to [low, high]).
-        """
-        import torch; 
         if isinstance(raw_output, torch.Tensor):
             raw_output = raw_output.detach().cpu().numpy()
 
+        raw_arr = np.asarray(raw_output)
+
         if self.action_type == ActionType.DISCRETE:
-            return int(raw_output)
+            return int(raw_arr)
 
         if self.action_type == ActionType.CONTINUOUS:
-            action = raw_output.astype(np.float32)
+            action = raw_arr.astype(np.float32)
             if clip and self.low is not None and self.high is not None:
                 action = np.clip(action, self.low, self.high)
             return action
 
         if self.action_type == ActionType.MULTI_DISCRETE:
-            # Split flat output into per-head chunks
             idx, result = 0, []
             for comp in self.components:
                 dim = comp.network_output_dim
-                result.append(comp.postprocess(raw_output[idx:idx+dim]))
+                result.append(comp.postprocess(raw_arr[idx:idx + dim]))
                 idx += dim
             return result
 
-        return raw_output
+        return raw_arr
 
     def sample(self) -> Any:
         """Random action for warmup / exploration baseline."""

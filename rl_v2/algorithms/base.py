@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
+import torch
 
 if TYPE_CHECKING:
     from ..envs.spaces import ObservationSpace, ActionSpace
