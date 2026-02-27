@@ -1,5 +1,25 @@
 # rl_v2 — Three Independent Plugin Systems
 
+## Quick start
+
+Run the trainer or inference script from the project root after installing the package:
+
+```bash
+# install editable copy and required packages
+pip install -e .
+pip install torchrl tensordict gymnasium[classic-control] tensorboard moviepy
+
+# example training runs
+python train.py --algo ppo --net mlp --env CartPole-v1
+python train.py --algo sac --net mlp --env Pendulum-v1
+python train.py --algo ppo --net cnn --env ALE/Pong-v5    # requires ale-py
+
+# list available algorithms
+python train.py --list_algos
+```
+
+You can also import `rl_v2` and use `infer.py` for running pre‑trained models.
+
 ## Architecture
 
 ```
